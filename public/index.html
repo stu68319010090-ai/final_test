@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบบันทึกกิจกรรม (Activity Logger)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; }
+        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        ul { list-style: none; padding: 0; }
+        li { background: #e9ecef; margin: 5px 0; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ระบบบันทึกกิจกรรม</h2>
+        <input type="text" id="title" placeholder="ชื่อกิจกรรม">
+        <input type="text" id="details" placeholder="รายละเอียดกิจกรรม">
+        <button onclick="addActivity()">บันทึกกิจกรรม</button>
+        <h3>รายการกิจกรรมทั้งหมด</h3>
+        <ul id="list"></ul>
+    </div>
+    <script>
+        async function fetchActivities() {
+            const res = await fetch('/api/activities');
+            const data = await res.json();
+            const list = document.getElementById('list');
+            list.innerHTML = data.map(item => `<li><b>${item.time}</b> - ${item.title}: ${item.details}</li>`).join('');
+        }
+        async function addActivity() {
+            const title = document.getElementById('title').value;
+            const details = document.getElementById('details').value;
+            if(!title) return alert('กรุณากรอกชื่อกิจกรรม');
+            await fetch('/api/activities', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, details })
+            });
+            document.getElementById('title').value = '';
+            document.getElementById('details').value = '';
+            fetchActivities();
+        }
+        fetchActivities();
+    </script>
+</body>
+</html>
